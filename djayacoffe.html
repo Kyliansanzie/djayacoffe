@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Djaya Coffee - Kasir</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e88e5;
+            --primary-dark: #1565c0;
+            --primary-light: #42a5f5;
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --bg-hover: #21262d;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --border: #30363d;
+            --success: #3fb950;
+            --danger: #f85149;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { display: flex; align-items: center; gap: 0.5rem; }
+        .logo-icon { font-size: 1.75rem; }
+        .logo h1 { font-size: 1.35rem; font-weight: 600; color: var(--primary-light); }
+
+        .nav { display: flex; gap: 0.5rem; }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { color: var(--text); background: var(--bg-hover); }
+        .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Pages */
+        .page { display: none; padding: 1.5rem; max-width: 1400px; margin: 0 auto; }
+        .page.active { display: block; }
+
+        /* Kasir Layout */
+        .kasir-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+            min-height: calc(100vh - 100px);
+        }
+        @media (max-width: 900px) {
+            .kasir-container { grid-template-columns: 1fr; }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .section-header h2 { font-size: 1.25rem; font-weight: 600; }
+
+        .search-input {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            width: 200px;
+        }
+        .search-input:focus { outline: none; border-color: var(--primary); }
+
+        /* Menu Grid */
+        .menu-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border: 1px solid var(--border);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .menu-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .menu-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 136, 229, 0.2);
+        }
+        .menu-card .name { font-weight: 500; font-size: 0.95rem; margin-bottom: 0.35rem; }
+        .menu-card .price { color: var(--primary-light); font-weight: 600; font-size: 0.9rem; }
+        .menu-card .category { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+        /* Cart */
+        .cart-section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 120px);
+        }
+
+        .cart-items { flex: 1; overflow-y: auto; margin-bottom: 1rem; }
+        .empty-cart { color: var(--text-muted); text-align: center; padding: 2rem 0; }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item-info { flex: 1; }
+        .cart-item-name { font-weight: 500; font-size: 0.9rem; }
+        .cart-item-price { font-size: 0.8rem; color: var(--text-muted); }
+
+        .cart-item-qty { display: flex; align-items: center; gap: 0.5rem; }
+
+        .qty-btn {
+            width: 28px; height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-dark);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .qty-btn:hover { background: var(--primary); border-color: var(--primary); }
+        .qty-value { min-width: 24px; text-align: center; font-weight: 500; }
+
+        .cart-item-subtotal {
+            font-weight: 600;
+            color: var(--primary-light);
+            min-width: 90px;
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+        .cart-footer { border-top: 1px solid var(--border); padding-top: 1rem; }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .total-row span:last-child { color: var(--primary-light); }
+
+        .customer-input { margin-bottom: 0.75rem; }
+        .customer-input input {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.6rem 0.9rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .customer-input input:focus { outline: none; border-color: var(--primary); }
+
+        /* Buttons */
+        .btn-checkout {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.85rem;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-checkout:hover:not(:disabled) { background: var(--primary-dark); }
+        .btn-checkout:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-clear {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .btn-clear:hover { border-color: var(--danger); color: var(--danger); }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover { background: var(--primary-dark); }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover { background: var(--bg-hover); }
+
+        .btn-danger {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .btn-danger:hover { background: rgba(248, 81, 73, 0.15); }
+
+        /* Rekap */
+        .rekap-container {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .rekap-filters { display: flex; gap: 0.5rem; }
+        .rekap-filters select {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .rekap-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .summary-label { font-size: 0.85rem; color: var(--text-muted); }
+        .summary-value { font-size: 1.5rem; font-weight: 600; color: var(--primary-light); }
+
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--text-muted); font-weight: 500; font-size: 0.85rem; }
+        td { font-size: 0.9rem; }
+
+        /* Admin */
+        .admin-login {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60vh;
+        }
+
+        .login-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+        }
+        .login-box h2 { margin-bottom: 0.5rem; }
+        .login-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+        .login-box input {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        .login-box input:focus { outline: none; border-color: var(--primary); }
+        .login-box .btn-primary { width: 100%; }
+        .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 0.75rem; min-height: 1.2rem; }
+
+        .admin-panel {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .admin-form {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .admin-form h3 { margin-bottom: 1rem; font-size: 1rem; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        .form-row input {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.65rem 0.9rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .form-row input:focus { outline: none; border-color: var(--primary); }
+
+        .form-actions { display: flex; gap: 0.5rem; }
+
+        .admin-menu-list h3 { margin-bottom: 1rem; font-size: 1rem; }
+        .admin-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        .admin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+        }
+        .admin-item-info { display: flex; flex-direction: column; gap: 0.15rem; }
+        .admin-item-name { font-weight: 500; }
+        .admin-item-price { color: var(--primary-light); font-size: 0.9rem; }
+        .admin-item-actions { display: flex; gap: 0.5rem; }
+        .admin-item-actions button {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .admin-item-actions button:hover { border-color: var(--primary); color: var(--primary-light); }
+        .admin-item-actions .btn-del:hover { border-color: var(--danger); color: var(--danger); }
+
+        .admin-danger {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        .admin-danger h3 { margin-bottom: 0.75rem; font-size: 1rem; }
+
+        /* Modal / Receipt */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: white;
+            color: #111;
+            border-radius: 12px;
+            max-width: 360px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .receipt { padding: 1.5rem; }
+
+        #receiptContent {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 0.75rem;
+        }
+        .receipt-header h3 { font-size: 1.2rem; margin-bottom: 0.25rem; }
+
+        .receipt-items { margin: 0.75rem 0; }
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+        }
+
+        .receipt-total {
+            border-top: 1px dashed #ccc;
+            padding-top: 0.75rem;
+            margin-top: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .receipt-footer {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #555;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        .modal-actions button { flex: 1; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #receiptContent, #receiptContent * { visibility: visible; }
+            #receiptContent {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .modal-actions { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">☕</span>
+                <h1>Djaya Coffee</h1>
+            </div>
+            <nav class="nav">
+                <button class="nav-btn active" data-page="kasir">Kasir</button>
+                <button class="nav-btn" data-page="rekap">Rekap Penjualan</button>
+                <button class="nav-btn" data-page="admin">Admin</button>
+            </nav>
+        </header>
+
+        <!-- Kasir Page -->
+        <main id="page-kasir" class="page active">
+            <div class="kasir-container">
+                <section class="menu-section">
+                    <div class="section-header">
+                        <h2>Menu</h2>
+                        <input type="text" id="searchMenu" placeholder="Cari menu..." class="search-input">
+                    </div>
+                    <div id="menuGrid" class="menu-grid"></div>
+                </section>
+
+                <section class="cart-section">
+                    <div class="section-header">
+                        <h2>Keranjang</h2>
+                        <button id="clearCart" class="btn-clear">Kosongkan</button>
+                    </div>
+                    <div id="cartItems" class="cart-items">
+                        <p class="empty-cart">Keranjang kosong</p>
+                    </div>
+                    <div class="cart-footer">
+                        <div class="total-row">
+                            <span>Total</span>
+                            <span id="cartTotal">Rp 0</span>
+                        </div>
+                        <div class="customer-input">
+                            <input type="text" id="customerName" placeholder="Nama pelanggan (opsional)">
+                        </div>
+                        <button id="checkoutBtn" class="btn-checkout" disabled>Cetak Struk</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Rekap Page -->
+        <main id="page-rekap" class="page">
+            <div class="rekap-container">
+                <div class="section-header">
+                    <h2>Rekap Penjualan</h2>
+                    <div class="rekap-filters">
+                        <select id="filterDate">
+                            <option value="today">Hari Ini</option>
+                            <option value="all">Semua</option>
+                        </select>
+                        <button id="exportRekap" class="btn-secondary">Export</button>
+                    </div>
+                </div>
+                <div class="rekap-summary">
+                    <div class="summary-card">
+                        <span class="summary-label">Total Transaksi</span>
+                        <span id="totalTransaksi" class="summary-value">0</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Total Pendapatan</span>
+                        <span id="totalPendapatan" class="summary-value">Rp 0</span>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="rekapTable">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Waktu</th>
+                                <th>Pelanggan</th>
+                                <th>Item</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rekapBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Admin Page -->
+        <main id="page-admin" class="page">
+            <div id="adminLogin" class="admin-login">
+                <div class="login-box">
+                    <h2>Admin Login</h2>
+                    <p>Masukkan password untuk mengakses panel admin</p>
+                    <input type="password" id="adminPassword" placeholder="Password">
+                    <button id="loginBtn" class="btn-primary">Masuk</button>
+                    <p id="loginError" class="error-msg"></p>
+                </div>
+            </div>
+            <div id="adminPanel" class="admin-panel" style="display: none;">
+                <div class="section-header">
+                    <h2>Kelola Menu</h2>
+                    <button id="logoutBtn" class="btn-secondary">Keluar</button>
+                </div>
+                <div class="admin-form">
+                    <h3>Tambah / Edit Menu</h3>
+                    <form id="menuForm">
+                        <input type="hidden" id="editId">
+                        <div class="form-row">
+                            <input type="text" id="menuName" placeholder="Nama menu" required>
+                            <input type="number" id="menuPrice" placeholder="Harga (Rp)" min="0" required>
+                            <input type="text" id="menuCategory" placeholder="Kategori (opsional)">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Simpan</button>
+                            <button type="button" id="cancelEdit" class="btn-secondary" style="display:none;">Batal</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="admin-menu-list">
+                    <h3>Daftar Menu</h3>
+                    <div id="adminMenuList" class="admin-list"></div>
+                </div>
+                <div class="admin-danger">
+                    <h3>Data</h3>
+                    <button id="resetSales" class="btn-danger">Reset Rekap Penjualan</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content receipt">
+            <div id="receiptContent"></div>
+            <div class="modal-actions">
+                <button id="printReceipt" class="btn-primary">Cetak</button>
+                <button id="closeReceipt" class="btn-secondary">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATA & STATE ==========
+        const ADMIN_PASSWORD = 'admin123';
+
+        let menu = JSON.parse(localStorage.getItem('djaya_menu')) || [
+            { id: 1, name: 'Espresso', price: 18000, category: 'Kopi' },
+            { id: 2, name: 'Americano', price: 20000, category: 'Kopi' },
+            { id: 3, name: 'Caffe Latte', price: 25000, category: 'Kopi' },
+            { id: 4, name: 'Cappuccino', price: 25000, category: 'Kopi' },
+            { id: 5, name: 'Caramel Macchiato', price: 30000, category: 'Kopi' },
+            { id: 6, name: 'Matcha Latte', price: 28000, category: 'Non-Kopi' },
+            { id: 7, name: 'Chocolate', price: 25000, category: 'Non-Kopi' },
+            { id: 8, name: 'Croissant', price: 22000, category: 'Makanan' },
+            { id: 9, name: 'Sandwich', price: 35000, category: 'Makanan' },
+            { id: 10, name: 'French Fries', price: 20000, category: 'Makanan' },
+        ];
+
+        let cart = [];
+        let sales = JSON.parse(localStorage.getItem('djaya_sales')) || [];
+        let isAdmin = false;
+        let nextId = Math.max(...menu.map(m => m.id), 0) + 1;
+
+        // ========== HELPERS ==========
+        function formatRupiah(num) {
+            return 'Rp ' + Number(num).toLocaleString('id-ID');
+        }
+
+        function saveMenu() {
+            localStorage.setItem('djaya_menu', JSON.stringify(menu));
+        }
+
+        function saveSales() {
+            localStorage.setItem('djaya_sales', JSON.stringify(sales));
+        }
+
+        function getTodayStr() {
+            return new Date().toISOString().slice(0, 10);
+        }
+
+        // ========== NAVIGATION ==========
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const page = btn.dataset.page;
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById('page-' + page).classList.add('active');
+
+                if (page === 'rekap') renderRekap();
+                if (page === 'admin') {
+                    if (isAdmin) {
+                        document.getElementById('adminLogin').style.display = 'none';
+                        document.getElementById('adminPanel').style.display = 'block';
+                        renderAdminMenu();
+                    } else {
+                        document.getElementById('adminLogin').style.display = 'flex';
+                        document.getElementById('adminPanel').style.display = 'none';
+                    }
+                }
+            });
+        });
+
+        // ========== MENU RENDER ==========
+        function renderMenu(filter = '') {
+            const grid = document.getElementById('menuGrid');
+            const filtered = menu.filter(m =>
+                m.name.toLowerCase().includes(filter.toLowerCase()) ||
+                (m.category && m.category.toLowerCase().includes(filter.toLowerCase()))
+            );
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="color:var(--text-muted);grid-column:1/-1;text-align:center;">Tidak ada menu</p>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(m => `
+                <div class="menu-card" onclick="addToCart(${m.id})">
+                    <div class="name">${m.name}</div>
+                    <div class="price">${formatRupiah(m.price)}</div>
+                    ${m.category ? `<div class="category">${m.category}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('searchMenu').addEventListener('input', e => {
+            renderMenu(e.target.value);
+        });
+
+        // ========== CART ==========
+        function addToCart(id) {
+            const item = menu.find(m => m.id === id);
+            if (!item) return;
+
+            const existing = cart.find(c => c.id === id);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ id: item.id, name: item.name, price: item.price, qty: 1 });
+            }
+            renderCart();
+        }
+
+        function updateQty(id, delta) {
+            const item = cart.find(c => c.id === id);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(c => c.id !== id);
+            }
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const totalEl = document.getElementById('cartTotal');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+
+            if (cart.length === 0) {
+                container.innerHTML = '<p class="empty-cart">Keranjang kosong</p>';
+                totalEl.textContent = 'Rp 0';
+                checkoutBtn.disabled = true;
+                return;
+            }
+
+            container.innerHTML = cart.map(c => `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${c.name}</div>
+                        <div class="cart-item-price">${formatRupiah(c.price)} × ${c.qty}</div>
+                    </div>
+                    <div class="cart-item-qty">
+                        <button class="qty-btn" onclick="updateQty(${c.id}, -1)">−</button>
+                        <span class="qty-value">${c.qty}</span>
+                        <button class="qty-btn" onclick="updateQty(${c.id}, 1)">+</button>
+                    </div>
+                    <div class="cart-item-subtotal">${formatRupiah(c.price * c.qty)}</div>
+                </div>
+            `).join('');
+
+            const total = cart.reduce((sum, c) => sum + c.price * c.qty, 0);
+            totalEl.textContent = formatRupiah(total);
+            checkoutBtn.disabled = false;
+        }
+
+        document.getElementById('clearCart').addEventListener('click', () => {
+            if (cart.length && confirm('Kosongkan keranjang?')) {
+                cart = [];
+                renderCart();
+            }
+        });
+
+        // ========== CHECKOUT & RECEIPT ==========
+        document.getElementById('checkoutBtn').addEventListener('click', () => {
+            if (cart.length === 0) return;
+
+            const customer = document.getElementById('customerName').value.trim() || 'Guest';
+            const total = cart.reduce((sum, c) => sum + c.price * c.qty, 0);
+            const now = new Date();
+
+            const transaction = {
+                id: Date.now(),
+                date: now.toISOString(),
+                customer,
+                items: cart.map(c => ({ ...c })),
+                total
+            };
+
+            sales.unshift(transaction);
+            saveSales();
+
+            const timeStr = now.toLocaleString('id-ID', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+
+            let itemsHtml = cart.map(c => `
+                <div class="receipt-item">
+                    <span>${c.name} x${c.qty}</span>
+                    <span>${formatRupiah(c.price * c.qty)}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('receiptContent').innerHTML = `
+                <div class="receipt-header">
+                    <h3>☕ Djaya Coffee</h3>
+                    <p>Jl. Contoh No. 123</p>
+                    <p>${timeStr}</p>
+                    <p>Pelanggan: ${customer}</p>
+                </div>
+                <div class="receipt-items">${itemsHtml}</div>
+                <div class="receipt-total">
+                    <span>TOTAL</span>
+                    <span>${formatRupiah(total)}</span>
+                </div>
+                <div class="receipt-footer">
+                    <p>Terima kasih atas kunjungannya!</p>
+                    <p>~ Djaya Coffee ~</p>
+                </div>
+            `;
+
+            document.getElementById('receiptModal').classList.add('show');
+
+            cart = [];
+            document.getElementById('customerName').value = '';
+            renderCart();
+        });
+
+        document.getElementById('printReceipt').addEventListener('click', () => {
+            window.print();
+        });
+
+        document.getElementById('closeReceipt').addEventListener('click', () => {
+            document.getElementById('receiptModal').classList.remove('show');
+        });
+
+        // ========== REKAP ==========
+        function renderRekap() {
+            const filter = document.getElementById('filterDate').value;
+            let data = sales;
+
+            if (filter === 'today') {
+                const today = getTodayStr();
+                data = sales.filter(s => s.date.startsWith(today));
+            }
+
+            const tbody = document.getElementById('rekapBody');
+            document.getElementById('totalTransaksi').textContent = data.length;
+            const sum = data.reduce((s, t) => s + t.total, 0);
+            document.getElementById('totalPendapatan').textContent = formatRupiah(sum);
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">Belum ada transaksi</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map((s, i) => {
+                const time = new Date(s.date).toLocaleString('id-ID', {
+                    day: '2-digit', month: '2-digit', year: '2-digit',
+                    hour: '2-digit', minute: '2-digit'
+                });
+                const itemsStr = s.items.map(it => `${it.name} x${it.qty}`).join(', ');
+                return `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${time}</td>
+                        <td>${s.customer}</td>
+                        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${itemsStr}">${itemsStr}</td>
+                        <td>${formatRupiah(s.total)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('filterDate').addEventListener('change', renderRekap);
+
+        document.getElementById('exportRekap').addEventListener('click', () => {
+            const filter = document.getElementById('filterDate').value;
+            let data = sales;
+            if (filter === 'today') {
+                data = sales.filter(s => s.date.startsWith(getTodayStr()));
+            }
+
+            if (data.length === 0) {
+                alert('Tidak ada data untuk diexport');
+                return;
+            }
+
+            let csv = 'No,Waktu,Pelanggan,Item,Total\n';
+            data.forEach((s, i) => {
+                const time = new Date(s.date).toLocaleString('id-ID');
+                const items = s.items.map(it => `${it.name} x${it.qty}`).join('; ');
+                csv += `${i + 1},"${time}","${s.customer}","${items}",${s.total}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rekap-djaya-coffee-${filter === 'today' ? getTodayStr() : 'semua'}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // ========== ADMIN ==========
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const pw = document.getElementById('adminPassword').value;
+            if (pw === ADMIN_PASSWORD) {
+                isAdmin = true;
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('loginError').textContent = '';
+                renderAdminMenu();
+            } else {
+                document.getElementById('loginError').textContent = 'Password salah!';
+            }
+        });
+
+        document.getElementById('adminPassword').addEventListener('keypress', e => {
+            if (e.key === 'Enter') document.getElementById('loginBtn').click();
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            isAdmin = false;
+            document.getElementById('adminLogin').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
+        });
+
+        function renderAdminMenu() {
+            const list = document.getElementById('adminMenuList');
+            if (menu.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-muted);">Belum ada menu</p>';
+                return;
+            }
+            list.innerHTML = menu.map(m => `
+                <div class="admin-item">
+                    <div class="admin-item-info">
+                        <span class="admin-item-name">${m.name}</span>
+                        <span class="admin-item-price">${formatRupiah(m.price)}${m.category ? ' · ' + m.category : ''}</span>
+                    </div>
+                    <div class="admin-item-actions">
+                        <button onclick="editMenu(${m.id})">Edit</button>
+                        <button class="btn-del" onclick="deleteMenu(${m.id})">Hapus</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('menuForm').addEventListener('submit', e => {
+            e.preventDefault();
+            const id = document.getElementById('editId').value;
+            const name = document.getElementById('menuName').value.trim();
+            const price = parseInt(document.getElementById('menuPrice').value, 10);
+            const category = document.getElementById('menuCategory').value.trim();
+
+            if (!name || isNaN(price) || price < 0) {
+                alert('Nama dan harga wajib diisi dengan benar');
+                return;
+            }
+
+            if (id) {
+                const idx = menu.findIndex(m => m.id === parseInt(id));
+                if (idx !== -1) {
+                    menu[idx] = { ...menu[idx], name, price, category };
+                }
+            } else {
+                menu.push({ id: nextId++, name, price, category });
+            }
+
+            saveMenu();
+            renderMenu(document.getElementById('searchMenu').value);
+            renderAdminMenu();
+            resetForm();
+        });
+
+        function editMenu(id) {
+            const m = menu.find(x => x.id === id);
+            if (!m) return;
+            document.getElementById('editId').value = m.id;
+            document.getElementById('menuName').value = m.name;
+            document.getElementById('menuPrice').value = m.price;
+            document.getElementById('menuCategory').value = m.category || '';
+            document.getElementById('cancelEdit').style.display = 'inline-block';
+            document.querySelector('.admin-form h3').textContent = 'Edit Menu';
+        }
+
+        function deleteMenu(id) {
+            if (!confirm('Hapus menu ini?')) return;
+            menu = menu.filter(m => m.id !== id);
+            saveMenu();
+            renderMenu(document.getElementById('searchMenu').value);
+            renderAdminMenu();
+        }
+
+        function resetForm() {
+            document.getElementById('editId').value = '';
+            document.getElementById('menuName').value = '';
+            document.getElementById('menuPrice').value = '';
+            document.getElementById('menuCategory').value = '';
+            document.getElementById('cancelEdit').style.display = 'none';
+            document.querySelector('.admin-form h3').textContent = 'Tambah / Edit Menu';
+        }
+
+        document.getElementById('cancelEdit').addEventListener('click', resetForm);
+
+        document.getElementById('resetSales').addEventListener('click', () => {
+            if (confirm('Yakin ingin menghapus SEMUA data penjualan? Tindakan ini tidak bisa dibatalkan.')) {
+                sales = [];
+                saveSales();
+                alert('Rekap penjualan telah direset.');
+            }
+        });
+
+        // ========== INIT ==========
+        renderMenu();
+        renderCart();
+    </script>
+</body>
+</html>
